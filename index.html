@@ -23,30 +23,129 @@
 		  -->
 		<div id="container">
 			<aside id="main_aside">
-				<blockquote>Article number one</blockquote> 
-				<blockquote>Article number two</blockquote> 
+				<div id="search">
+					<input type="text" id="search_input" />
+					<button id="searching" style='display:inline;' onClick="onClickSearch()">검색</button>
+				</div>
+				<div id="sorting_title">
+					<div id="sorting">
+						<button id="sorting_car" style='display:inline;' onClick="onClickSorting('car')">차량번호</button>
+						<button id="sorting_date" style='display:inline;' onClick="onClickSorting('date')">날짜</button>
+					</div>
+				</div>
+				<div id="sorting_content">
+		
+				</div>
 			</aside>
 
 			<section id="main_section">
-				<article>
-					
-					<a class="image-link" href="picture/image-1.jpg" data-lightbox="roadtrip"><img class="thumb-image" src="picture/thumb-1.jpg" /></a>
-					<a class="image-link" href="picture/image-2.jpg" data-lightbox="roadtrip"><img class="thumb-image" src="picture/thumb-2.jpg" /></a>
-					<a class="image-link" href="picture/image-3.jpg" data-lightbox="roadtrip"><img class="thumb-image" src="picture/thumb-3.jpg" /></a>
-					<a class="image-link" href="picture/image-4.jpg" data-lightbox="roadtrip"><img class="thumb-image" src="picture/thumb-4.jpg"/></a>
-					<a class="image-link" href="picture/image-5.jpg" data-lightbox="roadtrip"><img class="thumb-image" src="picture/thumb-5.jpg"/></a>
-		   
+				<article id="img_content">
+
 				</article>
 			</section>
 		
 		</div>
-		
+		<!--
 		<footer id="main_footer">
 		</footer>
+		-->
 	</div>
 	
 	<script src="js/jquery-1.10.2.min.js"></script>
 	<script src="js/lightbox-2.6.min.js"></script>
+	<script>
+		
+		var type = "";
 
+		function onClickFolder(select){
+
+			var url = "http://210.119.30.206:8080/car/get_data.jsp";
+			$.ajax({
+				url: url,
+				type: 'GET',
+				data: { type: type, title: select }, 
+				success: function(response, status, request){
+					var res = response.trim();			
+					var res_array = res.split('/');
+				
+					$('#img_content').empty();
+
+					for (i=0; i<res_array.length-1; i++ )
+					{
+						var tmp_img = "http://210.119.30.206:8080/car/"+res_array[i]+".jpg";
+						var tmp_thumb = "http://210.119.30.206:8080/car/thumb/"+res_array[i]+".jpg";
+						var tmp_tag = "<a class='image-link' href='"+tmp_img+"' data-lightbox='roadtrip'>";
+						tmp_tag += "<img class='thumb-image' src='"+tmp_thumb+"' style='margin: 5px;'  /></a>";
+						
+						$('#img_content').append(tmp_tag);
+					}	
+
+				}
+			});
+		}
+
+		function onClickSorting(select){
+			if(select == 'car'){
+				type = 'car';
+			}
+			else if(select == 'date'){
+				type = 'date';
+			}
+
+			var url = "http://210.119.30.206:8080/car/get_title.jsp";
+			$.ajax({
+				url: url,
+				type: 'GET',
+				data: { type: type }, 
+				success: function(response, status, request){
+					var res = response.trim();			
+					var res_array = res.split('/');
+					
+					$('#sorting_content').empty();
+
+					for (i=0; i<res_array.length-1; i++ )
+					{
+						var tmp_tag = "<div class='folder'>";
+						tmp_tag += "<img class='folder_image' src='img/folder_close.png' />";
+						tmp_tag += "<div class='folder_name' style='display:inline;' onClick=onClickFolder('"+res_array[i]+"')>"+res_array[i]+"</div>";
+						tmp_tag += "</div>";
+						
+						$('#sorting_content').append(tmp_tag);
+					}	
+				}
+			});
+		}
+
+		function onClickSearch() {
+			var search_val = $('#search_input').val();
+
+			var url = "http://210.119.30.206:8080/car/get_search.jsp";
+			$.ajax({
+				url: url,
+				type: 'GET',
+				data: { search: search_val }, 
+				success: function(response, status, request){
+					var res = response.trim();			
+					var res_array = res.split('/');
+				
+					$('#sorting_content').empty();
+
+					for (i=0; i<res_array.length-1; i++ )
+					{
+						var tmp_tag = "<div class='folder'>";
+						tmp_tag += "<img class='folder_image' src='img/folder_close.png' />";
+						tmp_tag += "<div class='folder_name' style='display:inline;' onClick=onClickFolder('"+res_array[i]+"')>"+res_array[i]+"</div>";
+						tmp_tag += "</div>";
+						
+						$('#sorting_content').append(tmp_tag);
+					}	
+
+				}
+			});
+		}
+
+		
+
+	</script>
 </body>
 </html>
